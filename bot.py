@@ -1,31 +1,29 @@
-from telegram import Update
-from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes, filters
-
 import os
+from telegram.ext import Updater, MessageHandler, Filters, CommandHandler
 
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("👋 File bhejo, main link bana dunga")
+def start(update, context):
+    update.message.reply_text("✅ Bot is running!\nSend me any file.")
 
-async def handle_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
+def file_handler(update, context):
     file = update.message.document or update.message.video or update.message.audio
     if not file:
         return
-
     file_id = file.file_id
     bot_username = context.bot.username
     link = f"https://t.me/{bot_username}?start={file_id}"
-    await update.message.reply_text(f"✅ File link:\n{link}")
+    update.message.reply_text(f"📁 File link:\n{link}")
 
-async def deep_link(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if context.args:
-        file_id = context.args[0]
-        await context.bot.send_document(chat_id=update.effective_chat.id, document=file_id)
+def main():
+    updater = Updater(BOT_TOKEN, use_context=True)
+    dp = updater.dispatcher
 
-app = ApplicationBuilder().token(BOT_TOKEN).build()
-app.add_handler(CommandHandler("start", start))
-app.add_handler(CommandHandler("start", deep_link))
-app.add_handler(MessageHandler(filters.Document.ALL | filters.Video.ALL | filters.Audio.ALL, handle_file))
+    dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(MessageHandler(Filters.document | Filters.video | Filters.audio, file_handler))
 
-app.run_polling()
+    updater.start_polling()
+    updater.idle()
+
+if __name__ == "__main__":
+    main()
