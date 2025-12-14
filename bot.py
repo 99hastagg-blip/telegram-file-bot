@@ -1,7 +1,9 @@
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes, filters
 
-BOT_TOKEN = "8204485442:AAHcwbEMRy3t6RY-UXyvLeeSwa8YNh7QZ4k"
+import os
+
+BOT_TOKEN = os.environ.get("BOT_TOKEN")
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("👋 File bhejo, main link bana dunga")
